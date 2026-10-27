@@ -57,50 +57,55 @@ tPile pileCreate() {
 
 int pileAdd(tPile pile, pile_value_t value) {
     /* Add a value on the top of the pile
-     * Return 1 if the pile is NULL
-     * Return 2 if a malloc error occurred.
+     * Return PILE_NULL_ERROR if the pile is NULL
+     * Return PILE_CELL_MALLOC_ERROR if a malloc error occurred on the new cell.
      */
-    if (pile == NULL) return 1;
+    if (pile == NULL) return PILE_NULL_ERROR;
 
     tCell new_cell = malloc(sizeof(struct sCell));
-    if (new_cell == NULL) return 2;
+    if (new_cell == NULL) return PILE_CELL_MALLOC_ERROR;
 
     new_cell->value = value;
     new_cell->previous = pile->top;
     pile->top = new_cell;
     pile->size += 1;
 
-    return 0;
+    return PILE_OK;
 }
 
 int pilePop(tPile pile, pile_value_t* buff) {
     /* Pop the top of the pile.
      * "buff" can be NULL. If it is, it remove the top value if the pile.
-     * return 1 if the pile is empty */
-    if (pile != NULL && pile->top != NULL && pile->size != 0) {
-        tCell cell = pile->top;
-        pile_value_t value = cell->value;
-        pile->top = (cell->previous != NULL ? cell->previous : NULL);
-        pile->size -= 1;
-        freeCell(&cell);
+     * return PILE_EMPTY_ERROR if the pile is empty
+     * return PILE_NULL_ERROR if the pile is NULL
+     */
+    if (pile == NULL) return PILE_NULL_ERROR;
+    if (pile->top == NULL || pile->size == 0) return PILE_EMPTY_ERROR;
 
-        if (buff != NULL)
-            *buff = value;
-        return 0;
-    }
+    tCell cell = pile->top;
+    pile_value_t value = cell->value;
+    pile->top = (cell->previous != NULL ? cell->previous : NULL);
+    pile->size -= 1;
+    freeCell(&cell);
 
-    return 1;
+    if (buff != NULL)
+        *buff = value;
+    return PILE_OK;
 }
 
 int pileTop(tPile pile, pile_value_t* buff) {
     /* Return the top value.
-     * Return 1 if the pile is empty */
+     * return PILE_EMPTY_ERROR if the pile is empty
+     * return PILE_NULL_ERROR if the pile is NULL
+     * return PILE_BUFF_NULL_ERROR if the buffer is NULL
+     */
 
-    if (pile != NULL && pile->top != NULL && pile->size != 0 && buff != NULL) {
-        *buff = pile->top->value;
-        return 0;
-    }
-    return 1;
+    if (pile == NULL) return PILE_NULL_ERROR;
+    if (pile->top == NULL || pile->size == 0) return PILE_EMPTY_ERROR;
+    if (buff == NULL) return PILE_BUFF_NULL_ERROR;
+
+    *buff = pile->top->value;
+    return PILE_OK;
 }
 
 size_t pileSize(tPile pile) {

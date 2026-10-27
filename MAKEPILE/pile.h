@@ -8,6 +8,16 @@
 #include <stddef.h>
 #include "../const.h"
 
+// SYMBOLIC CONST for errors in pile module
+#define PILE_OK 0
+#define PILE_MALLOC_ERROR 1
+#define PILE_CELL_MALLOC_ERROR 2
+#define PILE_EMPTY_ERROR 3
+#define PILE_SIZE_ERROR 4 // used if pile->size != number of cells in the pile
+#define PILE_NULL_ERROR 5
+#define PILE_BUFF_NULL_ERROR 6
+
+
 typedef struct sPile* tPile;
 
 tPile pileCreate();
