@@ -104,7 +104,7 @@ int pileTop(tPile pile, pile_value_t* buff) {
     /* Return the top value.
      * Return 1 if the pile is empty */
 
-    if (pile->size != 0 && buff != NULL) {
+    if (pile != NULL && pile->size != 0 && buff != NULL) {
         *buff = pile->top->value;
         return 0;
     }
