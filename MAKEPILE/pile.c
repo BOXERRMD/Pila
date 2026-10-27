@@ -20,11 +20,14 @@ typedef struct sCell {
 } *tCell;
 
 void freeCell(tCell* cell) {
+    /* Free a cell and set the pointer to NULL.
+     * This function is PRIVATE and must be not called outside this file ! */
     free(*cell);
     *cell = NULL;
 }
 
 void freePile(tPile* pile) {
+    /* Free a pile and cell inside. Put the pointer of the pile and cells to NULL */
     tPile tmp_pile = *pile;
     if (tmp_pile->top != NULL) {
         tCell cell = tmp_pile->top;
@@ -57,8 +60,8 @@ int pileAdd(tPile pile, PILE_VALUE_SIZE value) {
     new_cell->value = value;
     new_cell->next = NULL; // nothing after her because it's the last on the pile
 
-    tCell tmp_cell;
-    if ((tmp_cell = pile->top) != NULL) {
+    tCell tmp_cell = pile->top;
+    if (tmp_cell != NULL) {
         tmp_cell->next = new_cell;
         new_cell->previous = tmp_cell;
         pile->top = new_cell;
@@ -67,7 +70,7 @@ int pileAdd(tPile pile, PILE_VALUE_SIZE value) {
     else {
         new_cell->previous = NULL;
         pile->top = new_cell;
-        pile->top += 1;
+        pile->size += 1;
     }
 
     return 0;
@@ -98,6 +101,11 @@ PILE_VALUE_SIZE pileTop(tPile pile, PILE_VALUE_SIZE def) {
     return def;
 }
 
+PILE_VALUE_SIZE pileSize(tPile pile) {
+    /* Return the pile size */
+    return pile->size;
+}
+
 void pileClear(tPile pile) {
     /* Clear all cell on the pile. */
     if (pile->size == 0) return;
@@ -108,4 +116,6 @@ void pileClear(tPile pile) {
         freeCell(&cell);
         cell = tmp_cell;
     }
+    pile->top = NULL;
+    pile->size = 0;
 }
