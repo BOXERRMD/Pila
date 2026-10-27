@@ -5,17 +5,17 @@
 #include "pile.h"
 #include "../const.h"
 #include <stdlib.h>
+#include <stddef.h>
 
 struct sPile {
     // "top" look the top of the pile (can be NULL if nothing is in the pile)
     struct sCell* top;
     // "size" is the size of the pile (init at 0)
-    PILE_VALUE_SIZE size;
+    size_t size;
 };
 
 typedef struct sCell {
-    PILE_VALUE_SIZE value;
-    struct sCell* next;
+    pile_value_t value;
     struct sCell* previous;
 } *tCell;
 
@@ -28,6 +28,8 @@ void freeCell(tCell* cell) {
 
 void freePile(tPile* pile) {
     /* Free a pile and cell inside. Put the pointer of the pile and cells to NULL */
+    if (pile == NULL || *pile == NULL) return;
+
     tPile tmp_pile = *pile;
     if (tmp_pile->top != NULL) {
         tCell cell = tmp_pile->top;
@@ -52,17 +54,17 @@ tPile pileCreate() {
     return new_pile;
 }
 
-int pileAdd(tPile pile, PILE_VALUE_SIZE value) {
-    /* Add a value on the top of the pile */
+int pileAdd(tPile pile, pile_value_t value) {
+    /* Add a value on the top of the pile
+     * Return 1 if a malloc error occurred.
+     */
     tCell new_cell = malloc(sizeof(struct sCell));
     if (new_cell == NULL) return 1;
 
     new_cell->value = value;
-    new_cell->next = NULL; // nothing after her because it's the last on the pile
 
     tCell tmp_cell = pile->top;
     if (tmp_cell != NULL) {
-        tmp_cell->next = new_cell;
         new_cell->previous = tmp_cell;
         pile->top = new_cell;
         pile->size += 1;
@@ -76,38 +78,42 @@ int pileAdd(tPile pile, PILE_VALUE_SIZE value) {
     return 0;
 }
 
-PILE_VALUE_SIZE pilePop(tPile pile, PILE_VALUE_SIZE def) {
+int pilePop(tPile pile, pile_value_t* buff) {
     /* Pop the top of the pile.
-     * "def" is returned if an error occurred or the pile are empty */
+     * return 1 if the pile is empty */
     if (pile->size != 0) {
         tCell cell = pile->top;
-        PILE_VALUE_SIZE value = cell->value;
+        pile_value_t value = cell->value;
         pile->top = (cell->previous != NULL ? cell->previous : NULL);
         pile->size -= 1;
         freeCell(&cell);
-        return value;
+        *buff = value;
+        return 0;
     }
 
-    return def;
+    return 1;
 }
 
-PILE_VALUE_SIZE pileTop(tPile pile, PILE_VALUE_SIZE def) {
+int pileTop(tPile pile, pile_value_t* buff) {
     /* Return the top value.
-     * "def" is returned if an error occurred or the pile are empty */
+     * Return 1 if the pile is empty */
 
     if (pile->size != 0) {
-        return pile->top->value;
+        *buff = pile->top->value;
+        return 0;
     }
-    return def;
+    return 1;
 }
 
-PILE_VALUE_SIZE pileSize(tPile pile) {
+size_t pileSize(tPile pile) {
     /* Return the pile size */
     return pile->size;
 }
 
 void pileClear(tPile pile) {
     /* Clear all cell on the pile. */
+    if (pile == NULL) return;
+
     if (pile->size == 0) return;
 
     tCell cell = pile->top;
