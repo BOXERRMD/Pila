@@ -19,14 +19,14 @@ typedef struct sCell {
     struct sCell* previous;
 } *tCell;
 
-void freeCell(tCell* cell) {
+static void freeCell(tCell* cell) {
     /* Free a cell and set the pointer to NULL.
      * This function is PRIVATE and must be not called outside this file ! */
     free(*cell);
     *cell = NULL;
 }
 
-void freePile(tPile* pile) {
+void pileFree(tPile* pile) {
     /* Free a pile and cell inside. Put the pointer of the pile and cells to NULL */
     if (pile == NULL || *pile == NULL) return;
 
@@ -87,7 +87,9 @@ int pilePop(tPile pile, pile_value_t* buff) {
         pile->top = (cell->previous != NULL ? cell->previous : NULL);
         pile->size -= 1;
         freeCell(&cell);
-        *buff = value;
+
+        if (buff != NULL)
+            *buff = value;
         return 0;
     }
 

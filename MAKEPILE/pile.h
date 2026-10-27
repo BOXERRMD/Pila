@@ -11,7 +11,7 @@
 typedef struct sPile* tPile;
 
 tPile pileCreate();
-void freePile(tPile* pile);
+void pileFree(tPile* pile);
 int pileAdd(tPile pile, pile_value_t value);
 int pilePop(tPile pile, pile_value_t* buff);
 int pileTop(tPile pile, pile_value_t* buff);
