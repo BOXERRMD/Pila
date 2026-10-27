@@ -9,15 +9,18 @@ OBJ=main.o pile.o
 $(EXE): $(OBJ)
 	if [ -d "$(BUILD_DIR)" ]; then rm -rf "$(BUILD_DIR)"; fi
 	mkdir -p $(BUILD_DIR)
-	mkdir -p $(OBJ_DIR)
 	$(CC) $(CFLAGS) $(OBJ_DIR)*.o -o $(BUILD_DIR)$(EXE)
 	if [ $$? -eq 0 ]; then echo "Build successfully done !"; else "Build failed..."; fi
 
+OBJ:
+	mkdir -p $(OBJ_DIR)
 
 main.o: main.c
+	make OBJ
 	$(CC) $(CFLAGS) main.c -c -o $(OBJ_DIR)main.o
 
 pile.o: MAKEPILE/pile.c
+	make OBJ
 	$(CC) $(CFLAGS) MAKEPILE/pile.c -c -o $(OBJ_DIR)pile.o
 
 test_pile: pile.o test
