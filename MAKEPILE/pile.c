@@ -45,7 +45,8 @@ void pileFree(tPile* pile) {
 
 
 tPile pileCreate() {
-    /* Create a new pile */
+    /* Create a new pile
+     * Return NULL if an error occurred */
     tPile new_pile = malloc(sizeof(struct sPile));
     if (new_pile == NULL) return NULL;
 
@@ -56,10 +57,13 @@ tPile pileCreate() {
 
 int pileAdd(tPile pile, pile_value_t value) {
     /* Add a value on the top of the pile
-     * Return 1 if a malloc error occurred.
+     * Return 1 if the pile is NULL
+     * Return 2 if a malloc error occurred.
      */
+    if (pile == NULL) return 1;
+
     tCell new_cell = malloc(sizeof(struct sCell));
-    if (new_cell == NULL) return 1;
+    if (new_cell == NULL) return 2;
 
     new_cell->value = value;
 
@@ -81,7 +85,7 @@ int pileAdd(tPile pile, pile_value_t value) {
 int pilePop(tPile pile, pile_value_t* buff) {
     /* Pop the top of the pile.
      * return 1 if the pile is empty */
-    if (pile->size != 0) {
+    if (pile != NULL && pile->top != NULL && pile->size != 0) {
         tCell cell = pile->top;
         pile_value_t value = cell->value;
         pile->top = (cell->previous != NULL ? cell->previous : NULL);
@@ -100,7 +104,7 @@ int pileTop(tPile pile, pile_value_t* buff) {
     /* Return the top value.
      * Return 1 if the pile is empty */
 
-    if (pile->size != 0) {
+    if (pile->size != 0 && buff != NULL) {
         *buff = pile->top->value;
         return 0;
     }
@@ -108,15 +112,16 @@ int pileTop(tPile pile, pile_value_t* buff) {
 }
 
 size_t pileSize(tPile pile) {
-    /* Return the pile size */
+    /* Return the pile size
+     * If pile is NULL, the size is equal to 0 */
+    if (pile == NULL) return 0;
+
     return pile->size;
 }
 
 void pileClear(tPile pile) {
     /* Clear all cell on the pile. */
-    if (pile == NULL) return;
-
-    if (pile->size == 0) return;
+    if (pile == NULL || pile->size == 0) return;
 
     tCell cell = pile->top;
     while (cell != NULL) {
