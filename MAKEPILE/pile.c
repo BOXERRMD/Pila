@@ -66,24 +66,16 @@ int pileAdd(tPile pile, pile_value_t value) {
     if (new_cell == NULL) return 2;
 
     new_cell->value = value;
-
-    tCell tmp_cell = pile->top;
-    if (tmp_cell != NULL) {
-        new_cell->previous = tmp_cell;
-        pile->top = new_cell;
-        pile->size += 1;
-    }
-    else {
-        new_cell->previous = NULL;
-        pile->top = new_cell;
-        pile->size += 1;
-    }
+    new_cell->previous = pile->top;
+    pile->top = new_cell;
+    pile->size += 1;
 
     return 0;
 }
 
 int pilePop(tPile pile, pile_value_t* buff) {
     /* Pop the top of the pile.
+     * "buff" can be NULL. If it is, it remove the top value if the pile.
      * return 1 if the pile is empty */
     if (pile != NULL && pile->top != NULL && pile->size != 0) {
         tCell cell = pile->top;
@@ -104,7 +96,7 @@ int pileTop(tPile pile, pile_value_t* buff) {
     /* Return the top value.
      * Return 1 if the pile is empty */
 
-    if (pile != NULL && pile->size != 0 && buff != NULL) {
+    if (pile != NULL && pile->top != NULL && pile->size != 0 && buff != NULL) {
         *buff = pile->top->value;
         return 0;
     }

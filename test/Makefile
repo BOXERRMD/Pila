@@ -7,7 +7,14 @@ _: test_$(TARGET).o
 	mkdir -p $(TARGET)
 	if [ ! -f $(OBJ_DIR)$(TARGET).o ]; then echo "$(TARGET).o not found !"; exit 1; fi
 	$(CC) $(CFLAGS) OBJ/test_$(TARGET).o $(OBJ_DIR)$(TARGET).o -o $(TARGET)/test_$(TARGET)
-	./$(TARGET)/test_$(TARGET)
+	command -v valgrind
+	if [ $$? -eq 0 ]; \
+		then echo "Valgind found, test with it..."; \
+		valgrind --leak-check=full --track-origins=yes ./$(TARGET)/test_$(TARGET); \
+	else \
+		echo "Valgrind not found, test without it..."; \
+		./$(TARGET)/test_$(TARGET); \
+	fi
 
 OBJ:
 	mkdir -p OBJ/
