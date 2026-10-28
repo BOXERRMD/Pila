@@ -18,7 +18,13 @@
 #define PILE_BUFF_NULL_ERROR 6
 
 
-typedef struct sPile* tPile;
+typedef struct sPile {
+    // "top" look the top of the pile (can be NULL if nothing is in the pile)
+    struct sCell* top;
+    // "size" is the size of the pile (init at 0)
+    size_t size;
+    size_t references;
+} *tPile;
 
 tPile pileCreate();
 void pileFree(tPile* pile);

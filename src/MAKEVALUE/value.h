@@ -8,6 +8,9 @@
 #include <stdbool.h>
 
 #include "../MAKEPILE/pile.h"
+#include "./DATA/string.h"
+
+#define VALUE_NULL_ERROR 1
 
 typedef enum {
     TYPE_NULL,
@@ -20,13 +23,12 @@ typedef enum {
 
 typedef struct sValue {
     eValueType type;
-    unsigned int reference; // only string and pile have reference
 
     union {
         long long int integer;
         double floating;
         bool boolean;
-        char* string;
+        tString string;
         tPile pile;
     } data;
 
@@ -34,6 +36,6 @@ typedef struct sValue {
 
 void freeValue(Value* value);
 void valueInit(Value* value);
-Value valueAdd(Value* value);
+int valueCopy(Value* destination, const Value* source);
 
 #endif //PILA_VALUE_H

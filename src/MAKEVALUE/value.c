@@ -6,6 +6,35 @@
 #include "../MAKEPILE/pile.h"
 #include <stdlib.h>
 
+static void valueRetain(const Value* value) {
+    /* Add 1 in value reference */
+    if (value == NULL) return;
+
+    if (value->type == TYPE_STRING && value->data.string != NULL) {
+        value->data.string->references++;
+    }
+    else if (value->type == TYPE_PILE && value->data.pile != NULL) {
+        value->data.pile->references++;
+    }
+}
+
+static void valueRelease(Value* value) {
+    /* Remove 1 in value reference */
+    if (value == NULL) return;
+
+    if (value->type != TYPE_STRING && value->type != TYPE_PILE) return;
+
+    if (value->type == TYPE_STRING && value->data.string != NULL) {
+        value->data.string->references--;
+        if (value->data.string->references == 0) {
+            freeValue(value);
+        }
+    }
+    else if (value->type == TYPE_PILE && value->data.pile != NULL) {
+        value->data.pile->references--;
+        pileFree(&(value->data.pile));
+    }
+}
 
 void freeValue(Value* value) {
     /* Free a value in a cell
@@ -13,32 +42,26 @@ void freeValue(Value* value) {
      */
     if (value == NULL) return;
 
-    if (value->reference -1 == 0) {
-        switch (value->type) {
+    switch (value->type) {
 
-            case TYPE_STRING:
-                free(value->data.string);
-                value->data.string = NULL;
-                break;
+        case TYPE_STRING:
+            valueRelease(value);
+            break;
 
-            case TYPE_PILE:
-                pileFree(&(value->data.pile));
-                value->data.pile = NULL;
-                break;
+        case TYPE_PILE:
+            valueRelease(value);
+            break;
 
-            case TYPE_INTEGER:
-                break;
-            case TYPE_FLOAT:
-                break;
-            case TYPE_BOOLEAN:
-                break;
-            case TYPE_NULL:
-                break;
-        }
+        case TYPE_INTEGER:
+            break;
+        case TYPE_FLOAT:
+            break;
+        case TYPE_BOOLEAN:
+            break;
+        case TYPE_NULL:
+            break;
     }
-    else if (value->reference > 1) {
-        value->reference -= 1;
-    }
+
 
     value->type = TYPE_NULL;
 }
@@ -48,19 +71,26 @@ void valueInit(Value* value) {
     if (value == NULL) return;
 
     value->type = TYPE_NULL;
-    value->reference = 0;
     value->data.string = NULL;
 }
 
-Value valueAdd(Value* value) {
-    /* Call when a value is add in a pile.
-     * It add 1 at the reference if the value is a string or a pile
-     * This function doesn't check if *value is NULL or not !
-     */
-
-    if (value->type == TYPE_STRING || value->type == TYPE_PILE) {
-        value->reference += 1;
+int valueCopy(Value* destination, const Value* source) {
+    /* Copy a value and add 1 to references if is a string or a pile */
+    if (destination == NULL || source == NULL) {
+        return 1;
     }
-    return *value;
+
+    *destination = *source;
+
+    if (destination->type == TYPE_STRING &&
+        destination->data.string != NULL) {
+        valueRetain(destination);
+    }
+    else if (destination->type == TYPE_PILE &&
+        destination->data.pile != NULL) {
+        valueRetain(destination);
+    }
+
+    return 0;
 }
 

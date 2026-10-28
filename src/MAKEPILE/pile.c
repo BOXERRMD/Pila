@@ -7,13 +7,6 @@
 #include <stddef.h>
 #include "../MAKEVALUE/value.h"
 
-struct sPile {
-    // "top" look the top of the pile (can be NULL if nothing is in the pile)
-    struct sCell* top;
-    // "size" is the size of the pile (init at 0)
-    size_t size;
-};
-
 typedef struct sCell {
     Value value;
     struct sCell* previous;
@@ -68,6 +61,7 @@ tPile pileCreate() {
 
     new_pile->size = 0;
     new_pile->top = NULL;
+    new_pile->references = 0;
     return new_pile;
 }
 
@@ -75,13 +69,17 @@ int pileAdd(tPile pile, Value value) {
     /* Add a value on the top of the pile
      * Return PILE_NULL_ERROR if the pile is NULL
      * Return PILE_CELL_MALLOC_ERROR if a malloc error occurred on the new cell.
+     * Return VALUE_NULL_ERROR if a pointed value is NULL
      */
     if (pile == NULL) return PILE_NULL_ERROR;
 
     tCell new_cell = cellCreate();
     if (new_cell == NULL) return PILE_CELL_MALLOC_ERROR;
 
-    new_cell->value = valueAdd(&value);
+    if (valueCopy(&(new_cell->value), &value) != 0) {
+        return VALUE_NULL_ERROR;
+    }
+
     new_cell->previous = pile->top;
     pile->top = new_cell;
     pile->size += 1;
@@ -103,9 +101,10 @@ int pilePop(tPile pile, Value* buff) {
     pile->top = (cell->previous != NULL ? cell->previous : NULL);
     pile->size -= 1;
 
-    if (buff != NULL)
+    if (buff != NULL) {
         *buff = value;
         valueInit(&value);
+    }
 
     freeCell(&cell);
 
