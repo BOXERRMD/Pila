@@ -6,7 +6,7 @@
 #define PILA_PILE_H
 
 #include <stddef.h>
-#include "../const.h"
+#include "../MAKEVALUE/value.h"
 
 // SYMBOLIC CONST for errors in pile module
 #define PILE_OK 0
@@ -22,9 +22,9 @@ typedef struct sPile* tPile;
 
 tPile pileCreate();
 void pileFree(tPile* pile);
-int pileAdd(tPile pile, pile_value_t value);
-int pilePop(tPile pile, pile_value_t* buff);
-int pileTop(tPile pile, pile_value_t* buff);
+int pileAdd(tPile pile, Value value);
+int pilePop(tPile pile, Value* buff);
+int pileTop(tPile pile, Value* buff);
 size_t pileSize(tPile pile);
 void pileClear(tPile pile);
 

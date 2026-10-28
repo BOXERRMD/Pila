@@ -1,9 +1,15 @@
 CC=gcc
 CFLAGS=-std=c11 -Wall -Werror -pedantic
 EXE=pila
+
 BUILD_DIR=BUILD/
 OBJ_DIR=OBJ/
+
+SRC=src/
+MAKEPILE=$(SRC)MAKEPILE
+
 TEST_DIR=test
+
 OBJ=main.o pile.o
 
 $(EXE): $(OBJ)
@@ -19,9 +25,9 @@ main.o: main.c
 	make OBJ
 	$(CC) $(CFLAGS) main.c -c -o $(OBJ_DIR)main.o
 
-pile.o: MAKEPILE/pile.c
+pile.o: src/MAKEPILE
 	make OBJ
-	$(CC) $(CFLAGS) MAKEPILE/pile.c -c -o $(OBJ_DIR)pile.o
+	$(CC) $(CFLAGS) $(MAKEPILE)/pile.c -c -o $(OBJ_DIR)pile.o
 
 test_pile: pile.o test
 	make -C $(TEST_DIR) TARGET=pile

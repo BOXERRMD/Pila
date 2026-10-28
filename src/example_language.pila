@@ -1,0 +1,43 @@
+\\ This file is an example for pila language.
+
+\*
+Pila is an interpreted language based on piles.
+And this, is how to write pila !
+*\
+
+18;                    \\ Add data on the main pile (named Pila)
+45 67 98 90;           \\ Add more data on Pila
+
+5 5 +;                 \\ Make 5 + 5 and place the result on Pila. CONSUME DATAS ON PILA !
+7 7 .+;                \\ Make 7 + 7 and place the result on Pila. Doesn't consume datas on Pila
+
+5 5 *;                 \\ Make 5 * 5 and place the result on Pila. CONSUME DATAS ON PILA !
+5 5 .*;                \\ Make 5 * 5 and place the result on Pila. Doesn't consume datas on Pila
+
+\*
+To proceed arithmetic instructions, it's always the same method.
+OPERAND_1 OPERAND_2  OPERATOR      consume operands on Pila
+    and
+OPERAND_1 OPERAND_2 .OPERATOR      doesn't consume operands on Pila
+
+ARITHMETICS OPERATOR LIST :
+ -
+ +
+ *
+ /
+ //
+ %
+*\
+
+x = 5;                 \\ variable definition
+
+x 3 +;                 \\ Add 3 to 5 (x = 5) and place the result on Pila. It make a copy of x value and place it on Pila,
+                       \\ place the 3 on Pila and proceed the operation.
+
+.x 60;                 \\ Redefine x value to 60. 60 it's consumed on Pila
+
+.x 3 +;                \\ Add 3 to 5 (x = 5) and set the result to the variable x.
+                       \\ It make a copy of x value and place it on Pila,
+                       \\ place the 3 on Pila and proceed the operation.
+
+

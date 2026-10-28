@@ -3,9 +3,9 @@
 //
 
 #include "pile.h"
-#include "../const.h"
 #include <stdlib.h>
 #include <stddef.h>
+#include "../MAKEVALUE/value.h"
 
 struct sPile {
     // "top" look the top of the pile (can be NULL if nothing is in the pile)
@@ -15,13 +15,29 @@ struct sPile {
 };
 
 typedef struct sCell {
-    pile_value_t value;
+    Value value;
     struct sCell* previous;
 } *tCell;
+
+static tCell cellCreate() {
+    /* Create a new cell and init it */
+    tCell cell = malloc(sizeof(struct sCell));
+    if (cell == NULL) return NULL;
+
+    Value value;
+    valueInit(&value);
+    cell->value = value;
+    cell->previous = NULL;
+
+    return cell;
+}
 
 static void freeCell(tCell* cell) {
     /* Free a cell and set the pointer to NULL.
      * This function is PRIVATE and must be not called outside this file ! */
+    if (cell == NULL || *cell == NULL) return;
+
+    freeValue(&(*cell)->value);
     free(*cell);
     *cell = NULL;
 }
@@ -55,14 +71,14 @@ tPile pileCreate() {
     return new_pile;
 }
 
-int pileAdd(tPile pile, pile_value_t value) {
+int pileAdd(tPile pile, Value value) {
     /* Add a value on the top of the pile
      * Return PILE_NULL_ERROR if the pile is NULL
      * Return PILE_CELL_MALLOC_ERROR if a malloc error occurred on the new cell.
      */
     if (pile == NULL) return PILE_NULL_ERROR;
 
-    tCell new_cell = malloc(sizeof(struct sCell));
+    tCell new_cell = cellCreate();
     if (new_cell == NULL) return PILE_CELL_MALLOC_ERROR;
 
     new_cell->value = value;
@@ -73,7 +89,7 @@ int pileAdd(tPile pile, pile_value_t value) {
     return PILE_OK;
 }
 
-int pilePop(tPile pile, pile_value_t* buff) {
+int pilePop(tPile pile, Value* buff) {
     /* Pop the top of the pile.
      * "buff" can be NULL. If it is, it remove the top value if the pile.
      * return PILE_EMPTY_ERROR if the pile is empty
@@ -83,7 +99,7 @@ int pilePop(tPile pile, pile_value_t* buff) {
     if (pile->top == NULL || pile->size == 0) return PILE_EMPTY_ERROR;
 
     tCell cell = pile->top;
-    pile_value_t value = cell->value;
+    Value value = cell->value;
     pile->top = (cell->previous != NULL ? cell->previous : NULL);
     pile->size -= 1;
     freeCell(&cell);
@@ -93,7 +109,7 @@ int pilePop(tPile pile, pile_value_t* buff) {
     return PILE_OK;
 }
 
-int pileTop(tPile pile, pile_value_t* buff) {
+int pileTop(tPile pile, Value* buff) {
     /* Return the top value.
      * return PILE_EMPTY_ERROR if the pile is empty
      * return PILE_NULL_ERROR if the pile is NULL
