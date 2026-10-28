@@ -20,6 +20,7 @@ typedef enum {
 
 typedef struct sValue {
     eValueType type;
+    unsigned int reference; // only string and pile have reference
 
     union {
         long long int integer;
@@ -33,5 +34,6 @@ typedef struct sValue {
 
 void freeValue(Value* value);
 void valueInit(Value* value);
+Value valueAdd(Value* value);
 
 #endif //PILA_VALUE_H

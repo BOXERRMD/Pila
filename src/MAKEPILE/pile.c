@@ -81,7 +81,7 @@ int pileAdd(tPile pile, Value value) {
     tCell new_cell = cellCreate();
     if (new_cell == NULL) return PILE_CELL_MALLOC_ERROR;
 
-    new_cell->value = value;
+    new_cell->value = valueAdd(&value);
     new_cell->previous = pile->top;
     pile->top = new_cell;
     pile->size += 1;
@@ -102,10 +102,13 @@ int pilePop(tPile pile, Value* buff) {
     Value value = cell->value;
     pile->top = (cell->previous != NULL ? cell->previous : NULL);
     pile->size -= 1;
-    freeCell(&cell);
 
     if (buff != NULL)
         *buff = value;
+        valueInit(&value);
+
+    freeCell(&cell);
+
     return PILE_OK;
 }
 

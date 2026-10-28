@@ -13,25 +13,31 @@ void freeValue(Value* value) {
      */
     if (value == NULL) return;
 
-    switch (value->type) {
-        case TYPE_STRING:
-            free(value->data.string);
-            value->data.string = NULL;
-            break;
+    if (value->reference -1 == 0) {
+        switch (value->type) {
 
-        case TYPE_PILE:
-            pileFree(&(value->data.pile));
-            value->data.pile = NULL;
-            break;
+            case TYPE_STRING:
+                free(value->data.string);
+                value->data.string = NULL;
+                break;
 
-        case TYPE_INTEGER:
-            break;
-        case TYPE_FLOAT:
-            break;
-        case TYPE_BOOLEAN:
-            break;
-        case TYPE_NULL:
-            break;
+            case TYPE_PILE:
+                pileFree(&(value->data.pile));
+                value->data.pile = NULL;
+                break;
+
+            case TYPE_INTEGER:
+                break;
+            case TYPE_FLOAT:
+                break;
+            case TYPE_BOOLEAN:
+                break;
+            case TYPE_NULL:
+                break;
+        }
+    }
+    else if (value->reference > 1) {
+        value->reference -= 1;
     }
 
     value->type = TYPE_NULL;
@@ -42,5 +48,19 @@ void valueInit(Value* value) {
     if (value == NULL) return;
 
     value->type = TYPE_NULL;
+    value->reference = 0;
     value->data.string = NULL;
 }
+
+Value valueAdd(Value* value) {
+    /* Call when a value is add in a pile.
+     * It add 1 at the reference if the value is a string or a pile
+     * This function doesn't check if *value is NULL or not !
+     */
+
+    if (value->type == TYPE_STRING || value->type == TYPE_PILE) {
+        value->reference += 1;
+    }
+    return *value;
+}
+
