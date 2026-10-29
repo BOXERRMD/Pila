@@ -27,7 +27,9 @@ static void test_new_pile(void) {
     expect(pile != NULL, "pileCreate returned NULL", 1);
     expect_size(pile, 0, 2);
 
-    pile_value_t value = 0;
+    Value value;
+       value.type = TYPE_INTEGER;
+       value.data.integer = 56;
     expect(pileTop(pile, &value) == PILE_EMPTY_ERROR,
            "pileTop must return PILE_EMPTY_ERROR on an empty pile", 3);
     expect(pilePop(pile, &value) == PILE_EMPTY_ERROR,
