@@ -7,8 +7,14 @@
 #include <stdlib.h>
 
 void freeValue(Value* value) {
-    /* Free a value in a cell
-     * Only pile and string are malloced !
+    /*
+     * Releases resources referenced by value and resets value to TYPE_NULL.
+     *
+     * The Value object is normally embedded in another object, such as a
+     * pile cell, so this function must never free the Value pointer itself.
+     * Only TYPE_STRING and TYPE_PILE can own reference-counted resources.
+     *
+     * A NULL pointer is accepted and ignored.
      */
     if (value == NULL) return;
 
@@ -36,7 +42,13 @@ void freeValue(Value* value) {
 }
 
 void valueInit(Value* value) {
-    /* Init a value */
+    /*
+     * Initializes value to the neutral TYPE_NULL state.
+     *
+     * This function does not release an existing string or pile reference;
+     * callers must release an already-owned value before reinitializing it.
+     * A NULL pointer is accepted and ignored.
+     */
     if (value == NULL) return;
 
     value->type = TYPE_NULL;
@@ -44,7 +56,17 @@ void valueInit(Value* value) {
 }
 
 int valueCopy(Value* destination, const Value* source) {
-    /* Copy a value and add 1 to references if is a string or a pile */
+    /*
+     * Copies source into destination and retains dynamic resources.
+     *
+     * Integer, floating-point, boolean, and null values are copied directly.
+     * String and pile values share their referenced object and increment its
+     * reference count. The previous contents of destination are overwritten
+     * without being released, so destination must be empty or already
+     * released by the caller.
+     *
+     * Returns 0 on success, or VALUE_NULL_ERROR if either pointer is NULL.
+     */
     if (destination == NULL || source == NULL) {
         return VALUE_NULL_ERROR;
     }
@@ -64,4 +86,3 @@ int valueCopy(Value* destination, const Value* source) {
 
     return 0;
 }
-

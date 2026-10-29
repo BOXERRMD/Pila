@@ -13,7 +13,12 @@ typedef struct sCell {
 } *tCell;
 
 static tCell cellCreate() {
-    /* Create a new cell and init it */
+    /*
+     * Allocates an empty cell and initializes its Value to TYPE_NULL.
+     *
+     * Returns NULL when allocation fails. This helper is private to this
+     * translation unit.
+     */
     tCell cell = malloc(sizeof(struct sCell));
     if (cell == NULL) return NULL;
 
@@ -26,8 +31,12 @@ static tCell cellCreate() {
 }
 
 static void freeCell(tCell* cell) {
-    /* Free a cell and set the pointer to NULL.
-     * This function is PRIVATE and must be not called outside this file ! */
+    /*
+     * Releases the cell's Value, frees the cell, and clears its pointer.
+     *
+     * This helper is private to this translation unit. Passing NULL or a
+     * pointer to NULL is allowed and ignored.
+     */
     if (cell == NULL || *cell == NULL) return;
 
     tCell tmp = *cell;
@@ -38,7 +47,12 @@ static void freeCell(tCell* cell) {
 }
 
 void pileFree(tPile* pile) {
-    /* Free a pile and cell inside. Put the pointer of the pile and cells to NULL */
+    /*
+     * Destroys an unreferenced pile and all of its cells.
+     *
+     * A pile is destroyed only when its reference count is zero. Passing
+     * NULL, a pointer to NULL, or a still-referenced pile is a no-op.
+     */
     if (pile == NULL || *pile == NULL) return;
 
     tPile tmp_pile = *pile;
@@ -58,8 +72,11 @@ void pileFree(tPile* pile) {
 }
 
 void pileRelease(tPile* pile) {
-    /* Release a pile reference.
-     * If references = 0, free the pile.
+    /*
+     * Drops one pile ownership reference.
+     *
+     * When the count reaches zero, pileFree performs the actual destruction.
+     * Passing NULL or a pointer to NULL is allowed and ignored.
      */
     if (pile == NULL || *pile == NULL) return;
 
@@ -77,15 +94,18 @@ void pileRelease(tPile* pile) {
 }
 
 void pileRetain(tPile pile) {
-    /* Add 1 to references */
+    /* Adds one ownership reference to a live pile object. */
     if (pile == NULL) return;
 
     pile->references++;
 }
 
 tPile pileCreate() {
-    /* Create a new pile
-     * Return NULL if an error occurred */
+    /*
+     * Allocates an empty pile with one initial ownership reference.
+     *
+     * Returns NULL when allocation fails.
+     */
     tPile new_pile = malloc(sizeof(struct sPile));
     if (new_pile == NULL) return NULL;
 
@@ -96,10 +116,13 @@ tPile pileCreate() {
 }
 
 int pileAdd(tPile pile, Value value) {
-    /* Add a value on the top of the pile
-     * Return PILE_NULL_ERROR if the pile is NULL
-     * Return PILE_CELL_MALLOC_ERROR if a malloc error occurred on the new cell.
-     * Return VALUE_NULL_ERROR if a pointed value is NULL
+    /*
+     * Allocates a cell, copies value into it, and links it at the top.
+     *
+     * The caller retains ownership of value. Dynamic data is shared through
+     * reference counting. Returns PILE_NULL_ERROR for a NULL pile,
+     * PILE_CELL_MALLOC_ERROR when the cell cannot be allocated, and
+     * VALUE_NULL_ERROR when valueCopy rejects its arguments.
      */
     if (pile == NULL) return PILE_NULL_ERROR;
 
@@ -119,10 +142,13 @@ int pileAdd(tPile pile, Value value) {
 }
 
 int pilePop(tPile pile, Value* buff) {
-    /* Pop the top of the pile.
-     * "buff" can be NULL. If it is, it remove the top value if the pile.
-     * return PILE_EMPTY_ERROR if the pile is empty
-     * return PILE_NULL_ERROR if the pile is NULL
+    /*
+     * Unlinks and releases the top cell.
+     *
+     * When buff is non-NULL, the removed value is copied into it. When buff
+     * is NULL, the removed value is released and discarded. Returns
+     * PILE_NULL_ERROR for a NULL pile, PILE_EMPTY_ERROR for an empty pile,
+     * and PILE_OK otherwise.
      */
     if (pile == NULL) return PILE_NULL_ERROR;
     if (pile->top == NULL || pile->size == 0) return PILE_EMPTY_ERROR;
@@ -143,10 +169,12 @@ int pilePop(tPile pile, Value* buff) {
 }
 
 int pileTop(tPile pile, Value* buff) {
-    /* Return the top value.
-     * return PILE_EMPTY_ERROR if the pile is empty
-     * return PILE_NULL_ERROR if the pile is NULL
-     * return PILE_BUFF_NULL_ERROR if the buffer is NULL
+    /*
+     * Copies the top value into buff without changing pile size.
+     *
+     * Dynamic data is retained through valueCopy. Returns PILE_NULL_ERROR
+     * for a NULL pile, PILE_EMPTY_ERROR for an empty pile, and
+     * PILE_BUFF_NULL_ERROR for a NULL destination.
      */
 
     if (pile == NULL) return PILE_NULL_ERROR;
@@ -158,15 +186,19 @@ int pileTop(tPile pile, Value* buff) {
 }
 
 size_t pileSize(tPile pile) {
-    /* Return the pile size
-     * If pile is NULL, the size is equal to 0 */
+    /* Returns the number of cells, or zero when pile is NULL. */
     if (pile == NULL) return 0;
 
     return pile->size;
 }
 
 void pileClear(tPile pile) {
-    /* Clear all cell on the pile. */
+    /*
+     * Releases every cell and resets top and size.
+     *
+     * The pile object remains allocated and can be reused. Passing NULL or
+     * an already empty pile is allowed and ignored.
+     */
     if (pile == NULL || pile->size == 0) return;
 
     tCell cell = pile->top;
