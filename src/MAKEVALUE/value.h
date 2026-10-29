@@ -10,6 +10,7 @@
 
 /* Returned when a Value pointer required by an operation is NULL. */
 #define VALUE_NULL_ERROR 1
+#define MAKE_VALUE_STRING_MALLOC_ERROR 2
 
 typedef enum {
     TYPE_NULL,
@@ -67,5 +68,12 @@ void valueInit(Value* value);
  * NULL.
  */
 int valueCopy(Value* destination, const Value* source);
+
+Value makeValueInteger(long long int data);
+Value makeValueBoolean(bool data);
+Value makeValueFloat(double data);
+Value makeValueNull(void);
+Value makeValueString(char* data);
+Value makeValuePile(void);
 
 #endif //PILA_VALUE_H

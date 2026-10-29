@@ -6,12 +6,20 @@
 #define PILA_STRING_H
 #include <stddef.h>
 
-typedef struct sString {
+typedef struct sString *tString;
+typedef struct sChar *tChar;
 
-    size_t references;
-    char* data;
+/*
+ * Return the number of reference for this string.
+ * Return 0 if the string doesn't exist
+ */
+size_t getStringReferences(tString string);
 
-} *tString;
+/*
+ * Return the first character of the string.
+ * Return NULL if the string doesn't exist or if the string is empty.
+ */
+struct sChar* getStringData(tString string);
 
 /*
  * Releases one ownership reference to a string.
@@ -29,5 +37,8 @@ void stringRelease(tString* string);
  * points to a live reference-counted String object.
  */
 void stringRetain(tString string);
+
+
+tString stringCreate(char* data);
 
 #endif //PILA_STRING_H

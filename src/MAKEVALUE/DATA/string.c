@@ -5,6 +5,44 @@
 #include "string.h"
 #include <stdlib.h>
 
+struct sChar {
+    char character;
+    struct sChar* next;
+};
+
+struct sString {
+
+    size_t references;
+    tChar data;
+
+};
+
+size_t getStringReferences(tString string) {
+    /* Return the number of reference for this string.
+     * Return 0 if the string doesn't exist
+     */
+    if (string == NULL) return 0;
+
+    return string->references;
+}
+
+struct sChar* getStringData(tString string) {
+    /*
+     * Return the first character of the string.
+     * Return NULL if the string doesn't exist or if the string is empty.
+     */
+    if (string == NULL) return NULL;
+
+    return string->data;
+}
+
+tString stringCreate(char* data) {
+    /*
+     *  Create a new string and gave it the current data
+     *
+     */
+}
+
 static void stringFree(tString* string) {
     /*
      * Destroys a string whose reference count is already zero.

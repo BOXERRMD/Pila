@@ -5,6 +5,7 @@
 #include "value.h"
 #include "../MAKEPILE/pile.h"
 #include <stdlib.h>
+#include <string.h>
 
 void freeValue(Value* value) {
     /*
@@ -61,9 +62,7 @@ int valueCopy(Value* destination, const Value* source) {
      *
      * Integer, floating-point, boolean, and null values are copied directly.
      * String and pile values share their referenced object and increment its
-     * reference count. The previous contents of destination are overwritten
-     * without being released, so destination must be empty or already
-     * released by the caller.
+     * reference count. The previous contents of destination are released and overwritten.
      *
      * Returns 0 on success, or VALUE_NULL_ERROR if either pointer is NULL.
      */
@@ -85,4 +84,66 @@ int valueCopy(Value* destination, const Value* source) {
     }
 
     return 0;
+}
+
+Value makeValueInteger(long long int data) {
+
+    Value value;
+    value.type = TYPE_INTEGER;
+    value.data.integer = data;
+    return value;
+}
+
+Value makeValueBoolean(bool data) {
+
+    Value value;
+    value.type = TYPE_BOOLEAN;
+    value.data.boolean = data;
+    return value;
+}
+
+Value makeValueFloat(double data) {
+
+    Value value;
+    value.type = TYPE_FLOAT;
+    value.data.floating = data;
+    return value;
+}
+
+Value makeValueNull(void) {
+
+    Value value;
+    value.type = TYPE_NULL;
+    value.data.string = NULL;
+    return value;
+}
+
+Value makeValueString(char* data) {
+
+    Value value;
+    value.type = TYPE_STRING;
+    size_t data_size = strlen(data)+1;
+    char* string = malloc(sizeof(char)*(data_size));
+
+    if (string != NULL) {
+        string[0] = '\0';
+        strncpy(string, data, data_size);
+        tString string_structure = stringCreate(string);
+        if (string_structure != NULL)
+            value.data.string = string_structure;
+        else value.data.string = NULL;
+    }
+    else {
+        value.data.string = NULL;
+    }
+    return value;
+}
+
+Value makeValuePile(void) {
+    Value value;
+    value.type = TYPE_PILE;
+
+    tPile pile = pileCreate();
+    value.data.pile = pile;     // assign the pile even if pile = NULL
+    return value;
 }
