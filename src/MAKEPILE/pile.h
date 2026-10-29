@@ -26,7 +26,7 @@ typedef struct sPile {
     size_t references;
 } *tPile;
 
-tPile pileCreate();
+tPile pileCreate(void);
 void pileFree(tPile* pile);
 void pileRelease(tPile* pile);
 void pileRetain(tPile pile);

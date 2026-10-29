@@ -107,6 +107,7 @@ int pileAdd(tPile pile, Value value) {
     if (new_cell == NULL) return PILE_CELL_MALLOC_ERROR;
 
     if (valueCopy(&(new_cell->value), &value) != 0) {
+        freeCell(&new_cell);
         return VALUE_NULL_ERROR;
     }
 

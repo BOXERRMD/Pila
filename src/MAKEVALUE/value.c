@@ -46,8 +46,10 @@ void valueInit(Value* value) {
 int valueCopy(Value* destination, const Value* source) {
     /* Copy a value and add 1 to references if is a string or a pile */
     if (destination == NULL || source == NULL) {
-        return 1;
+        return VALUE_NULL_ERROR;
     }
+
+    freeValue(destination);
 
     *destination = *source;
 
