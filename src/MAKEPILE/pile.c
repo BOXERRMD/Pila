@@ -65,7 +65,10 @@ void pileRelease(tPile* pile) {
 
     tPile tmp = *pile;
 
-    if (tmp->references == 0) return;
+    if (tmp->references == 0) {
+        pileFree(pile);
+        return;
+    }
 
     tmp->references--;
 
@@ -88,7 +91,7 @@ tPile pileCreate() {
 
     new_pile->size = 0;
     new_pile->top = NULL;
-    new_pile->references = 0;
+    new_pile->references = 1;
     return new_pile;
 }
 
@@ -149,7 +152,7 @@ int pileTop(tPile pile, Value* buff) {
     if (pile->top == NULL || pile->size == 0) return PILE_EMPTY_ERROR;
     if (buff == NULL) return PILE_BUFF_NULL_ERROR;
 
-    *buff = pile->top->value;
+    valueCopy(buff, &(pile->top->value));
     return PILE_OK;
 }
 
