@@ -6,7 +6,7 @@ OBJ_DIR=../OBJ/
 _: test_$(TARGET).o
 	mkdir -p $(TARGET)
 	if [ ! -f $(OBJ_DIR)$(TARGET).o ]; then echo "$(TARGET).o not found !"; exit 1; fi
-	$(CC) $(CFLAGS) OBJ/test_$(TARGET).o $(OBJ_DIR)$(TARGET).o -o $(TARGET)/test_$(TARGET)
+	$(CC) $(CFLAGS) OBJ/test_$(TARGET).o `find $(OBJ_DIR) -type f ! -name main.o` -o $(TARGET)/test_$(TARGET)
 	command -v valgrind
 	if [ $$? -eq 0 ]; \
 		then echo "Valgind found, test with it..."; \

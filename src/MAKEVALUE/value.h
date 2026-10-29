@@ -6,7 +6,6 @@
 #define PILA_VALUE_H
 
 #include <stdbool.h>
-
 #include "./DATA/string.h"
 
 /* Returned when a Value pointer required by an operation is NULL. */
@@ -20,6 +19,8 @@ typedef enum {
     TYPE_STRING,
     TYPE_PILE
 } eValueType;
+
+typedef struct sPile* tPile;
 
 typedef struct sValue {
     eValueType type;
