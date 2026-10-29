@@ -6,36 +6,6 @@
 #include "../MAKEPILE/pile.h"
 #include <stdlib.h>
 
-static void valueRetain(const Value* value) {
-    /* Add 1 in value reference */
-    if (value == NULL) return;
-
-    if (value->type == TYPE_STRING && value->data.string != NULL) {
-        value->data.string->references++;
-    }
-    else if (value->type == TYPE_PILE && value->data.pile != NULL) {
-        value->data.pile->references++;
-    }
-}
-
-static void valueRelease(Value* value) {
-    /* Remove 1 in value reference */
-    if (value == NULL) return;
-
-    if (value->type != TYPE_STRING && value->type != TYPE_PILE) return;
-
-    if (value->type == TYPE_STRING && value->data.string != NULL) {
-        value->data.string->references--;
-        if (value->data.string->references == 0) {
-            freeValue(value);
-        }
-    }
-    else if (value->type == TYPE_PILE && value->data.pile != NULL) {
-        value->data.pile->references--;
-        pileFree(&(value->data.pile));
-    }
-}
-
 void freeValue(Value* value) {
     /* Free a value in a cell
      * Only pile and string are malloced !
@@ -45,11 +15,11 @@ void freeValue(Value* value) {
     switch (value->type) {
 
         case TYPE_STRING:
-            valueRelease(value);
+            stringRelease(&(value->data.string));
             break;
 
         case TYPE_PILE:
-            valueRelease(value);
+            pileRelease(&(value->data.pile));
             break;
 
         case TYPE_INTEGER:
@@ -62,8 +32,7 @@ void freeValue(Value* value) {
             break;
     }
 
-
-    value->type = TYPE_NULL;
+    valueInit(value);
 }
 
 void valueInit(Value* value) {
@@ -84,11 +53,11 @@ int valueCopy(Value* destination, const Value* source) {
 
     if (destination->type == TYPE_STRING &&
         destination->data.string != NULL) {
-        valueRetain(destination);
+        stringRetain(destination->data.string);
     }
     else if (destination->type == TYPE_PILE &&
         destination->data.pile != NULL) {
-        valueRetain(destination);
+        pileRetain(destination->data.pile);
     }
 
     return 0;

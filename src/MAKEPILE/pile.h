@@ -28,6 +28,8 @@ typedef struct sPile {
 
 tPile pileCreate();
 void pileFree(tPile* pile);
+void pileRelease(tPile* pile);
+void pileRetain(tPile pile);
 int pileAdd(tPile pile, Value value);
 int pilePop(tPile pile, Value* buff);
 int pileTop(tPile pile, Value* buff);

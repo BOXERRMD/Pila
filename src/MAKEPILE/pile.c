@@ -30,8 +30,10 @@ static void freeCell(tCell* cell) {
      * This function is PRIVATE and must be not called outside this file ! */
     if (cell == NULL || *cell == NULL) return;
 
-    freeValue(&(*cell)->value);
-    free(*cell);
+    tCell tmp = *cell;
+
+    freeValue(&(tmp->value));
+    free(tmp);
     *cell = NULL;
 }
 
@@ -40,6 +42,9 @@ void pileFree(tPile* pile) {
     if (pile == NULL || *pile == NULL) return;
 
     tPile tmp_pile = *pile;
+
+    if (tmp_pile->references != 0) return;
+
     if (tmp_pile->top != NULL) {
         tCell cell = tmp_pile->top;
         while (cell != NULL) {
@@ -52,6 +57,28 @@ void pileFree(tPile* pile) {
     *pile = NULL;
 }
 
+void pileRelease(tPile* pile) {
+    /* Release a pile reference.
+     * If references = 0, free the pile.
+     */
+    if (pile == NULL || *pile == NULL) return;
+
+    tPile tmp = *pile;
+
+    if (tmp->references == 0) return;
+
+    tmp->references--;
+
+    pileFree(pile); // free only if references = 0
+
+}
+
+void pileRetain(tPile pile) {
+    /* Add 1 to references */
+    if (pile == NULL) return;
+
+    pile->references++;
+}
 
 tPile pileCreate() {
     /* Create a new pile
@@ -102,7 +129,7 @@ int pilePop(tPile pile, Value* buff) {
     pile->size -= 1;
 
     if (buff != NULL) {
-        *buff = value;
+        valueCopy(buff, &value);
         valueInit(&value);
     }
 

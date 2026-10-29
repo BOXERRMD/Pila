@@ -13,4 +13,7 @@ typedef struct sString {
 
 } *tString;
 
+void stringRelease(tString* string);
+void stringRetain(tString string);
+
 #endif //PILA_STRING_H
