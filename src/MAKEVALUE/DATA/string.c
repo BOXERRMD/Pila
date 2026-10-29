@@ -6,7 +6,12 @@
 #include <stdlib.h>
 
 static void stringFree(tString* string) {
-    /* Free a string and put his pointer to NULL */
+    /*
+     * Destroys a string whose reference count is already zero.
+     *
+     * This helper is private to this translation unit. It does nothing for
+     * NULL pointers or for strings that still have outstanding references.
+     */
     if (string == NULL || *string == NULL) return;
 
     tString tmp = *string;
@@ -20,6 +25,12 @@ static void stringFree(tString* string) {
 }
 
 void stringRelease(tString* string) {
+    /*
+     * Drops one reference and destroys the string when no owner remains.
+     *
+     * A zero reference count is treated as an invalid release state and is
+     * left unchanged. Passing NULL is allowed and ignored.
+     */
     if (string == NULL || *string == NULL) {
         return;
     }
@@ -38,7 +49,7 @@ void stringRelease(tString* string) {
 }
 
 void stringRetain(tString string) {
-    /* Add 1 to references */
+    /* Adds one ownership reference to a live string object. */
     if (string == NULL) return;
 
     string->references++;
