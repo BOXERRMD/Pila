@@ -17,7 +17,7 @@ static tCell cellCreate() {
      * Allocates an empty cell and initializes its Value to TYPE_NULL.
      *
      * Returns NULL when allocation fails. This helper is private to this
-     * translation unit.
+     * translation unit and transfers no ownership beyond the new cell.
      */
     tCell cell = malloc(sizeof(struct sCell));
     if (cell == NULL) return NULL;
@@ -50,8 +50,10 @@ void pileFree(tPile* pile) {
     /*
      * Destroys an unreferenced pile and all of its cells.
      *
-     * A pile is destroyed only when its reference count is zero. Passing
-     * NULL, a pointer to NULL, or a still-referenced pile is a no-op.
+     * This is the final destruction step, not the normal way to release an
+     * owned pile reference. A pile is destroyed only when its reference count
+     * is zero. Passing NULL, a pointer to NULL, or a still-referenced pile is
+     * a no-op.
      */
     if (pile == NULL || *pile == NULL) return;
 
@@ -75,8 +77,8 @@ void pileRelease(tPile* pile) {
     /*
      * Drops one pile ownership reference.
      *
-     * When the count reaches zero, pileFree performs the actual destruction.
-     * Passing NULL or a pointer to NULL is allowed and ignored.
+     * When the count reaches zero, pileFree() performs the actual
+     * destruction. Passing NULL or a pointer to NULL is allowed and ignored.
      */
     if (pile == NULL || *pile == NULL) return;
 

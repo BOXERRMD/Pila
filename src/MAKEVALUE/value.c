@@ -12,7 +12,7 @@ void freeValue(Value* value) {
      * Releases resources referenced by value and resets value to TYPE_NULL.
      *
      * The Value object is normally embedded in another object, such as a
-     * pile cell, so this function must never free the Value pointer itself.
+     * pile cell, so this function never frees the Value pointer itself.
      * Only TYPE_STRING and TYPE_PILE can own reference-counted resources.
      *
      * A NULL pointer is accepted and ignored.
@@ -44,7 +44,8 @@ void freeValue(Value* value) {
 
 void valueInit(Value* value) {
     /*
-     * Initializes value to the neutral TYPE_NULL state.
+     * Initializes value to the neutral TYPE_NULL state and clears its
+     * dynamic-data pointer.
      *
      * This function does not release an existing string or pile reference;
      * callers must release an already-owned value before reinitializing it.
@@ -62,7 +63,8 @@ int valueCopy(Value* destination, const Value* source) {
      *
      * Integer, floating-point, boolean, and null values are copied directly.
      * String and pile values share their referenced object and increment its
-     * reference count. The previous contents of destination are released and overwritten.
+     * reference count. The previous contents of destination are released
+     * before being overwritten.
      *
      * Returns 0 on success, or VALUE_NULL_ERROR if either pointer is NULL.
      */
@@ -87,7 +89,7 @@ int valueCopy(Value* destination, const Value* source) {
 }
 
 Value makeValueInteger(long long int data) {
-
+    /* Builds a scalar integer Value without dynamic allocation. */
     Value value;
     value.type = TYPE_INTEGER;
     value.data.integer = data;
@@ -95,7 +97,7 @@ Value makeValueInteger(long long int data) {
 }
 
 Value makeValueBoolean(bool data) {
-
+    /* Builds a scalar boolean Value without dynamic allocation. */
     Value value;
     value.type = TYPE_BOOLEAN;
     value.data.boolean = data;
@@ -103,7 +105,7 @@ Value makeValueBoolean(bool data) {
 }
 
 Value makeValueFloat(double data) {
-
+    /* Builds a scalar floating-point Value without dynamic allocation. */
     Value value;
     value.type = TYPE_FLOAT;
     value.data.floating = data;
@@ -111,7 +113,7 @@ Value makeValueFloat(double data) {
 }
 
 Value makeValueNull(void) {
-
+    /* Builds a Value representing the language-level null value. */
     Value value;
     value.type = TYPE_NULL;
     value.data.string = NULL;
@@ -119,7 +121,12 @@ Value makeValueNull(void) {
 }
 
 Value makeValueString(const char* data) {
-
+    /*
+     * Builds a string Value by copying data into a reference-counted String.
+     *
+     * The input must be a non-NULL NUL-terminated C string. On allocation
+     * failure, the returned Value has TYPE_STRING and a NULL data pointer.
+     */
     Value value;
     value.type = TYPE_STRING;
     const size_t data_size = strlen(data)+1;
@@ -140,6 +147,7 @@ Value makeValueString(const char* data) {
 }
 
 Value makeValuePile(void) {
+    /* Builds a pile Value owning the initial reference returned by pileCreate. */
     Value value;
     value.type = TYPE_PILE;
 

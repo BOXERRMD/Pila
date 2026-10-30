@@ -8,8 +8,9 @@
 #include <stdbool.h>
 #include "./DATA/string.h"
 
-/* Returned when a Value pointer required by an operation is NULL. */
+/* A required Value pointer is NULL. */
 #define VALUE_NULL_ERROR 1
+/* A string-related allocation failed while constructing a Value. */
 #define MAKE_VALUE_STRING_MALLOC_ERROR 2
 
 typedef enum {
@@ -59,21 +60,40 @@ void valueInit(Value* value);
 /*
  * Copies a Value into destination and retains referenced strings or piles.
  *
- * This is a shallow copy of scalar data and a reference-counted copy of
- * dynamic data. The destination is overwritten as-is; its previous
- * resources are not released by this function. The caller must therefore
- * provide an initialized, empty destination or release it beforehand.
+ * Scalar fields are copied directly. String and pile objects are shared and
+ * retained through their reference counters. Any resource already referenced
+ * by destination is released before it is overwritten.
  *
  * Returns 0 on success and VALUE_NULL_ERROR when destination or source is
  * NULL.
  */
 int valueCopy(Value* destination, const Value* source);
 
+/* Creates an integer Value containing data. */
 Value makeValueInteger(long long int data);
+
+/* Creates a boolean Value containing data. */
 Value makeValueBoolean(bool data);
+
+/* Creates a floating-point Value containing data. */
 Value makeValueFloat(double data);
+
+/* Creates a TYPE_NULL Value with no owned resource. */
 Value makeValueNull(void);
+
+/*
+ * Creates a string Value from a NUL-terminated string.
+ *
+ * The input text is copied into the String representation. On allocation
+ * failure, the returned Value has TYPE_STRING with a NULL string pointer.
+ */
 Value makeValueString(const char* data);
+
+/*
+ * Creates a pile Value containing a newly allocated empty pile.
+ *
+ * On allocation failure, the returned Value contains a NULL pile pointer.
+ */
 Value makeValuePile(void);
 
 #endif //PILA_VALUE_H
