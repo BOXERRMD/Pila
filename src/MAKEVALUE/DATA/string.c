@@ -21,8 +21,10 @@ struct sString {
 };
 
 size_t getStringReferences(tString string) {
-    /* Return the number of reference for this string.
-     * Return 0 if the string doesn't exist
+    /*
+     * Returns the current ownership-reference count.
+     *
+     * A NULL String pointer represents no object and returns zero.
      */
     if (string == NULL) return 0;
 
@@ -31,8 +33,10 @@ size_t getStringReferences(tString string) {
 
 struct sChar* getStringData(tString string) {
     /*
-     * Return the first character of the string.
-     * Return NULL if the string doesn't exist or if the string is empty.
+     * Returns the first borrowed character node in the string list.
+     *
+     * A NULL String pointer or an empty string returns NULL. The returned
+     * node remains owned by the String object.
      */
     if (string == NULL) return NULL;
 
@@ -41,8 +45,10 @@ struct sChar* getStringData(tString string) {
 
 static tChar characterCreate(char character) {
     /*
-     * Create a single structure character.
-     * Return NULL if an malloc error occurred.
+     * Allocates one character node.
+     *
+     * Returns NULL when allocation fails. This helper is private to this
+     * translation unit.
      */
     tChar char_ = malloc(sizeof(struct sChar));
     if (char_ == NULL) return NULL;
@@ -53,9 +59,7 @@ static tChar characterCreate(char character) {
 }
 
 static void characterFree(tChar* char_) {
-    /*
-     * Free a struct sChar
-     */
+    /* Frees one character node and clears the caller's pointer. */
     if (char_ == NULL || *char_ == NULL) return;
     free(*char_);
     *char_ = NULL;
@@ -63,7 +67,9 @@ static void characterFree(tChar* char_) {
 
 static void characterFreeAll(tChar* char_) {
     /*
-     * Free all character in the chained list character
+     * Frees every node in a character list and clears the list pointer.
+     *
+     * This helper is private to this translation unit.
      */
     if (char_ == NULL || *char_ == NULL) return;
 
@@ -81,8 +87,9 @@ static void stringFree(tString* string) {
     /*
      * Destroys a string whose reference count is already zero.
      *
-     * This helper is private to this translation unit. It does nothing for
-     * NULL pointers or for strings that still have outstanding references.
+     * This helper is private to this translation unit. It frees the complete
+     * character list and the String object, and does nothing for NULL
+     * pointers or objects that still have outstanding references.
      */
     if (string == NULL || *string == NULL) return;
 
@@ -98,7 +105,7 @@ static void stringFree(tString* string) {
 
 void stringRelease(tString* string) {
     /*
-     * Drops one reference and destroys the string when no owner remains.
+     * Drops one ownership reference and destroys the String at zero.
      *
      * A zero reference count is treated as an invalid release state and is
      * left unchanged. Passing NULL is allowed and ignored.
@@ -110,8 +117,7 @@ void stringRelease(tString* string) {
     tString current = *string;
 
     if (current->references == 0) {
-        // A string MUST be init at 1 reference when it was created.
-        // If references = 0, it's a pile created by the system.
+        /* A zero count indicates an invalid or already released object. */
         return;
     }
 
@@ -121,7 +127,7 @@ void stringRelease(tString* string) {
 }
 
 void stringRetain(tString string) {
-    /* Adds one ownership reference to a live string object. */
+    /* Adds one ownership reference to a live String object. */
     if (string == NULL) return;
 
     string->references++;
@@ -129,8 +135,11 @@ void stringRetain(tString string) {
 
 tString stringCreate(const char* data) {
     /*
-     *  Create a new string and gave it the current data
+     * Creates a reference-counted String from a NUL-terminated C string.
      *
+     * Characters are inserted into a singly linked list in source order.
+     * Returns NULL when data is NULL or when any allocation fails. The
+     * returned object starts with one ownership reference.
      */
     if (data == NULL) return NULL;
 
@@ -158,4 +167,3 @@ tString stringCreate(const char* data) {
     new_string->data = next_char;
     return new_string;
 }
-

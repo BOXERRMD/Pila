@@ -8,15 +8,14 @@
 #include <stddef.h>
 #include "../MAKEVALUE/value.h"
 
-// SYMBOLIC CONST for errors in pile module
+/* Error codes returned by pile operations. */
 #define PILE_OK 0
 #define PILE_MALLOC_ERROR 1
 #define PILE_CELL_MALLOC_ERROR 2
 #define PILE_EMPTY_ERROR 3
-#define PILE_SIZE_ERROR 4 // used if pile->size != number of cells in the pile
+#define PILE_SIZE_ERROR 4
 #define PILE_NULL_ERROR 5
 #define PILE_BUFF_NULL_ERROR 6
-
 
 typedef struct sPile {
     /* Top cell; NULL means that the pile contains no cells. */
@@ -27,7 +26,12 @@ typedef struct sPile {
     size_t references;
 } *tPile;
 
-/* Allocates and initializes an empty pile with one owner. */
+/*
+ * Allocates and initializes an empty pile with one ownership reference.
+ *
+ * Returns NULL when allocation fails. The caller owns the initial reference
+ * and must eventually release it with pileRelease().
+ */
 tPile pileCreate(void);
 
 /*
@@ -46,7 +50,12 @@ void pileFree(tPile* pile);
  */
 void pileRelease(tPile* pile);
 
-/* Adds one ownership reference to pile. Passing NULL is ignored. */
+/*
+ * Adds one ownership reference to pile.
+ *
+ * Passing NULL is allowed and ignored. The pile must point to a live pile
+ * object when this function is called.
+ */
 void pileRetain(tPile pile);
 
 /*
@@ -55,7 +64,8 @@ void pileRetain(tPile pile);
  * Dynamic values are copied through valueCopy and therefore retain their
  * referenced string or nested pile. The caller retains ownership of value.
  * Returns PILE_OK, PILE_NULL_ERROR, PILE_CELL_MALLOC_ERROR, or
- * VALUE_NULL_ERROR.
+ * VALUE_NULL_ERROR. The input Value itself is passed by value; only
+ * reference-counted data referenced by it is shared.
  */
 int pileAdd(tPile pile, Value value);
 
@@ -63,7 +73,8 @@ int pileAdd(tPile pile, Value value);
  * Removes the top cell from pile.
  *
  * If buff is not NULL, the removed value is copied into buff; otherwise the
- * value is discarded. The pile owns no value after the cell is removed.
+ * value is discarded. The destination must be an initialized Value because
+ * valueCopy() releases its previous contents before copying.
  * Returns PILE_OK, PILE_NULL_ERROR, or PILE_EMPTY_ERROR.
  */
 int pilePop(tPile pile, Value* buff);
@@ -71,8 +82,9 @@ int pilePop(tPile pile, Value* buff);
 /*
  * Copies the top value into buff without removing it.
  *
- * Dynamic values are retained through valueCopy. Returns PILE_OK,
- * PILE_NULL_ERROR, PILE_EMPTY_ERROR, or PILE_BUFF_NULL_ERROR.
+ * Dynamic values are retained through valueCopy. The destination must be an
+ * initialized Value. Returns PILE_OK, PILE_NULL_ERROR, PILE_EMPTY_ERROR, or
+ * PILE_BUFF_NULL_ERROR.
  */
 int pileTop(tPile pile, Value* buff);
 
