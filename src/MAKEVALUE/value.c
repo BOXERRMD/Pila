@@ -118,17 +118,17 @@ Value makeValueNull(void) {
     return value;
 }
 
-Value makeValueString(char* data) {
+Value makeValueString(const char* data) {
 
     Value value;
     value.type = TYPE_STRING;
-    size_t data_size = strlen(data)+1;
+    const size_t data_size = strlen(data)+1;
     char* string = malloc(sizeof(char)*(data_size));
 
     if (string != NULL) {
         string[0] = '\0';
         strncpy(string, data, data_size);
-        tString string_structure = stringCreate(string);
+        const tString string_structure = stringCreate(string);
         if (string_structure != NULL)
             value.data.string = string_structure;
         else value.data.string = NULL;

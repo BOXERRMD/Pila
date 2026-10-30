@@ -42,7 +42,7 @@ struct sChar* getStringData(tString string) {
 static tChar characterCreate(char character) {
     /*
      * Create a single structure character.
-     * Return NULL if an malloc error occured.
+     * Return NULL if an malloc error occurred.
      */
     tChar char_ = malloc(sizeof(struct sChar));
     if (char_ == NULL) return NULL;
@@ -144,7 +144,7 @@ tString stringCreate(const char* data) {
     size_t i = strlen(data);
     tChar next_char = NULL;
     while (i-1 > 0) {
-        tChar char_ = characterCreate(data[i-1]);
+        const tChar char_ = characterCreate(data[i-1]);
         if (char_ == NULL) {
             characterFreeAll(&next_char);
             stringRelease(&new_string); // free the new string because reference = 1

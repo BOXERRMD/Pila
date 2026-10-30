@@ -73,7 +73,7 @@ Value makeValueInteger(long long int data);
 Value makeValueBoolean(bool data);
 Value makeValueFloat(double data);
 Value makeValueNull(void);
-Value makeValueString(char* data);
+Value makeValueString(const char* data);
 Value makeValuePile(void);
 
 #endif //PILA_VALUE_H
