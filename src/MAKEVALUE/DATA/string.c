@@ -141,7 +141,7 @@ tString stringCreate(const char* data) {
     new_string->size = 0;
     new_string->data = NULL;
 
-    size_t i = strlen(data);
+    size_t i = strlen(data)+1;
     tChar next_char = NULL;
     while (i-1 > 0) {
         const tChar char_ = characterCreate(data[i-1]);

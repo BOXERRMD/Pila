@@ -122,12 +122,15 @@ Value makeValueString(const char* data) {
 
     Value value;
     value.type = TYPE_STRING;
-    const size_t data_size = strlen(data)+1;
+
+    const char* current_string = data != NULL ? data : ""; // avoid data = NULL
+
+    const size_t data_size = strlen(current_string)+1;
     char* string = malloc(sizeof(char)*(data_size));
 
     if (string != NULL) {
         string[0] = '\0';
-        strncpy(string, data, data_size);
+        strncpy(string, current_string, data_size);
         const tString string_structure = stringCreate(string);
         if (string_structure != NULL)
             value.data.string = string_structure;
