@@ -33,6 +33,7 @@ typedef struct sValue {
         bool boolean;
         tString string;
         tPile pile;
+        int null;
     } data;
 
 } Value;
@@ -95,5 +96,7 @@ Value makeValueString(const char* data);
  * On allocation failure, the returned Value contains a NULL pile pointer.
  */
 Value makeValuePile(void);
+
+Value makeValueNull(void);Remove
 
 #endif //PILA_VALUE_H

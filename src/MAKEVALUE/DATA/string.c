@@ -7,15 +7,10 @@
 #include <string.h>
 #include <time.h>
 
-struct sChar {
-    char character;
-    struct sChar* next;
-};
-
 struct sString {
 
     size_t references;
-    tChar data;
+    char* data;
     size_t size;
 
 };
@@ -31,7 +26,7 @@ size_t getStringReferences(tString string) {
     return string->references;
 }
 
-struct sChar* getStringData(tString string) {
+char* getStringData(tString string) {
     /*
      * Returns the first borrowed character node in the string list.
      *
@@ -41,46 +36,6 @@ struct sChar* getStringData(tString string) {
     if (string == NULL) return NULL;
 
     return string->data;
-}
-
-static tChar characterCreate(char character) {
-    /*
-     * Allocates one character node.
-     *
-     * Returns NULL when allocation fails. This helper is private to this
-     * translation unit.
-     */
-    tChar char_ = malloc(sizeof(struct sChar));
-    if (char_ == NULL) return NULL;
-
-    char_->character = character;
-    char_->next = NULL;
-    return char_;
-}
-
-static void characterFree(tChar* char_) {
-    /* Frees one character node and clears the caller's pointer. */
-    if (char_ == NULL || *char_ == NULL) return;
-    free(*char_);
-    *char_ = NULL;
-}
-
-static void characterFreeAll(tChar* char_) {
-    /*
-     * Frees every node in a character list and clears the list pointer.
-     *
-     * This helper is private to this translation unit.
-     */
-    if (char_ == NULL || *char_ == NULL) return;
-
-    tChar tmp = *char_;
-    tChar next_char = tmp;
-    while (tmp != NULL) {
-        next_char = tmp->next;
-        characterFree(&tmp);
-        tmp = next_char;
-    }
-    *char_ = NULL;
 }
 
 static void stringFree(tString* string) {
@@ -96,8 +51,7 @@ static void stringFree(tString* string) {
     tString tmp = *string;
 
     if (tmp->references != 0) return;
-
-    characterFreeAll(&(tmp->data));
+    if (tmp->data != NULL) free(tmp->data);
     free(tmp);
 
     *string = NULL;
@@ -150,20 +104,16 @@ tString stringCreate(const char* data) {
     new_string->size = 0;
     new_string->data = NULL;
 
-    size_t i = strlen(data)+1;
-    tChar next_char = NULL;
-    while (i-1 > 0) {
-        const tChar char_ = characterCreate(data[i-1]);
-        if (char_ == NULL) {
-            characterFreeAll(&next_char);
-            stringRelease(&new_string); // free the new string because reference = 1
-            return NULL;
-        }
-        char_->next = next_char;
-        next_char = char_;
-        i--;
-        new_string->size++;
+    size_t len_data = strlen(data);
+
+    char* malloced_string = malloc(sizeof(char)* len_data+1);
+    if (malloced_string == NULL) {
+        stringFree(&new_string);
+        return NULL;
     }
-    new_string->data = next_char;
+
+    strncpy(malloced_string, data, len_data+1);
+    new_string->data = malloced_string;
+
     return new_string;
 }

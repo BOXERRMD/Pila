@@ -124,7 +124,7 @@ Value makeValueString(const char* data) {
     /*
      * Builds a string Value by copying data into a reference-counted String.
      *
-     * The input must be a non-NULL NUL-terminated C string. On allocation
+     * The input can be NULL. If it null, it was considered like an empty string. On allocation
      * failure, the returned Value has TYPE_STRING and a NULL data pointer.
      */
     Value value;
@@ -156,5 +156,14 @@ Value makeValuePile(void) {
 
     tPile pile = pileCreate();
     value.data.pile = pile;     // assign the pile even if pile = NULL
+    return value;
+}
+
+Value makeValueNull(void) {
+    /* Builds a null value */
+
+    Value value;
+    value.type = TYPE_NULL;
+    value.data.null = 0;
     return value;
 }

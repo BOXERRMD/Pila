@@ -7,7 +7,6 @@
 #include <stddef.h>
 
 typedef struct sString *tString;
-typedef struct sChar *tChar;
 
 /*
  * Returns the current number of ownership references for string.
@@ -23,7 +22,7 @@ size_t getStringReferences(tString string);
  * Returns NULL when string is NULL or empty. The returned node is borrowed;
  * callers must not free it or modify the list through it.
  */
-struct sChar* getStringData(tString string);
+char* getStringData(tString string);
 
 /*
  * Releases one ownership reference to a string.

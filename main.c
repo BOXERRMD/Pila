@@ -1,6 +1,5 @@
 #include <stdio.h>
+#include "src/MAKEVALUE/value.h"
 
 int main(void) {
-    printf("%lu\n", sizeof(long long int));
-    return 0;
 }
