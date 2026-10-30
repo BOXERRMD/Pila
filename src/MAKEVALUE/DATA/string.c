@@ -4,6 +4,8 @@
 
 #include "string.h"
 #include <stdlib.h>
+#include <string.h>
+#include <time.h>
 
 struct sChar {
     char character;
@@ -14,6 +16,7 @@ struct sString {
 
     size_t references;
     tChar data;
+    size_t size;
 
 };
 
@@ -36,11 +39,42 @@ struct sChar* getStringData(tString string) {
     return string->data;
 }
 
-tString stringCreate(char* data) {
+static tChar characterCreate(char character) {
     /*
-     *  Create a new string and gave it the current data
-     *
+     * Create a single structure character.
+     * Return NULL if an malloc error occured.
      */
+    tChar char_ = malloc(sizeof(struct sChar));
+    if (char_ == NULL) return NULL;
+
+    char_->character = character;
+    char_->next = NULL;
+    return char_;
+}
+
+static void characterFree(tChar* char_) {
+    /*
+     * Free a struct sChar
+     */
+    if (char_ == NULL || *char_ == NULL) return;
+    free(*char_);
+    *char_ = NULL;
+}
+
+static void characterFreeAll(tChar* char_) {
+    /*
+     * Free all character in the chained list character
+     */
+    if (char_ == NULL || *char_ == NULL) return;
+
+    tChar tmp = *char_;
+    tChar next_char = tmp;
+    while (tmp != NULL) {
+        next_char = tmp->next;
+        characterFree(&tmp);
+        tmp = next_char;
+    }
+    *char_ = NULL;
 }
 
 static void stringFree(tString* string) {
@@ -56,7 +90,7 @@ static void stringFree(tString* string) {
 
     if (tmp->references != 0) return;
 
-    if (tmp->data != NULL) free(tmp->data);
+    characterFreeAll(&(tmp->data));
     free(tmp);
 
     *string = NULL;
@@ -92,3 +126,36 @@ void stringRetain(tString string) {
 
     string->references++;
 }
+
+tString stringCreate(const char* data) {
+    /*
+     *  Create a new string and gave it the current data
+     *
+     */
+    if (data == NULL) return NULL;
+
+    tString new_string = malloc(sizeof(struct sString));
+    if (new_string == NULL) return NULL;
+
+    new_string->references = 1;
+    new_string->size = 0;
+    new_string->data = NULL;
+
+    size_t i = strlen(data);
+    tChar next_char = NULL;
+    while (i-1 > 0) {
+        tChar char_ = characterCreate(data[i-1]);
+        if (char_ == NULL) {
+            characterFreeAll(&next_char);
+            stringRelease(&new_string); // free the new string because reference = 1
+            return NULL;
+        }
+        char_->next = next_char;
+        next_char = char_;
+        i--;
+        new_string->size++;
+    }
+    new_string->data = next_char;
+    return new_string;
+}
+

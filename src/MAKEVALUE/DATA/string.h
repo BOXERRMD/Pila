@@ -39,6 +39,6 @@ void stringRelease(tString* string);
 void stringRetain(tString string);
 
 
-tString stringCreate(char* data);
+tString stringCreate(const char* data);
 
 #endif //PILA_STRING_H
