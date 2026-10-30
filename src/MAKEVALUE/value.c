@@ -116,7 +116,7 @@ Value makeValueNull(void) {
     /* Builds a Value representing the language-level null value. */
     Value value;
     value.type = TYPE_NULL;
-    value.data.string = NULL;
+    value.data.null = 0;
     return value;
 }
 
@@ -156,14 +156,5 @@ Value makeValuePile(void) {
 
     tPile pile = pileCreate();
     value.data.pile = pile;     // assign the pile even if pile = NULL
-    return value;
-}
-
-Value makeValueNull(void) {
-    /* Builds a null value */
-
-    Value value;
-    value.type = TYPE_NULL;
-    value.data.null = 0;
     return value;
 }

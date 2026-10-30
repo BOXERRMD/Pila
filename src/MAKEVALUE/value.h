@@ -97,6 +97,4 @@ Value makeValueString(const char* data);
  */
 Value makeValuePile(void);
 
-Value makeValueNull(void);
-
 #endif //PILA_VALUE_H
